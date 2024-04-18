@@ -1,5 +1,10 @@
 package accounting_ledger;
 import java.util.Scanner;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class AccountingLedger {
     // Initalize the scanner.
@@ -14,8 +19,13 @@ public class AccountingLedger {
     static String paymentDescription;
     static String paymentVendor;
     static double paymentAmount;
+    static int reportInput;
+    static LocalDateTime currentTime;
+    static DateTimeFormatter formatDateTime;
+    static String finalDateTime;
 
     public static void main(String args[]) {
+        // Call homeMenu method.
         homeMenu();
     }
 
@@ -70,6 +80,26 @@ public class AccountingLedger {
         // Ask user to enter deposit amount.
         System.out.println("Enter deposit amount: ");
         depositAmount = scanner.nextDouble();
+
+        // Get current date and time.
+        currentTime = LocalDateTime.now();
+
+        // Set the format for the date and time.
+        formatDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss");
+
+        // Format the date and time.
+        finalDateTime = currentTime.format(formatDateTime);
+
+        // Write the information into the csv.
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("transactions.csv", true))) {
+            writer.write(finalDateTime + "|" + depositDescription + "|" + depositVendor + "|" + depositAmount + "\n");
+
+            // Success messsage.
+            System.out.println("Deposit information added to transactions.csv successfully.");
+        // If an error occured, print error.
+        } catch (IOException e) {
+            System.out.println("An error occurred while writing to the file: " + e.getMessage());
+        }
     }
 
     // Create the makePayment method.
@@ -147,6 +177,71 @@ public class AccountingLedger {
 
     // Create the ledgerReports method.
     public static void ledgerReports() {
+        // Create menu for reports.
+        System.out.println("1) Month to Date");
+        System.out.println("2) Previous Month");
+        System.out.println("3) Year to Date");
+        System.out.println("4) Previous Year");
+        System.out.println("5) Search by Vendor");
+        System.out.println("0) Back");
+
+        // Ask user to choose an option.
+        System.out.print("Choose an option: ");
+        reportInput = scanner.nextInt();
+
+        // If user chose 1.
+        if (reportInput == 1) {
+            // Call monthToDate method.
+            monthToDate();
+        // If user chose 2.
+        } else if (reportInput == 2) {
+            // Call previousMonth method.
+            previousMonth();
+        // If user chose 3.
+        } else if (reportInput == 3) {
+            // Call yearToDate method.
+            yearToDate();
+        // If user chose 4.
+        } else if (reportInput == 4) {
+            // Call previousYear method.
+            previousYear();
+        // If user chose 5.
+        } else if (reportInput == 5) {
+            // Call searchByVendor method.
+            searchByVendor();
+        // If user chose 0.
+        } else if (reportInput == 0) {
+            // Call ledgerReports method.
+            ledgerReports();
+        // If user entered a wrong input.
+        } else {
+            System.out.println("Invalid input. Please try again.");
+            reportInput = scanner.nextInt();
+        }
+    }
+
+    // Create monthToDate method.
+    public static void monthToDate() {
+
+    }
+
+    // Create previousMonth method.
+    public static void previousMonth() {
         
+    }
+
+    // Create yearToDate method.
+    public static void yearToDate() {
+
+    }
+
+    // Create previousYear method.
+    public static void previousYear() {
+
+    }
+
+    // Create searchByVendor method.
+    public static void searchByVendor() {
+
     }
 }
