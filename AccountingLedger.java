@@ -90,7 +90,7 @@ public class AccountingLedger {
         // Format the date and time.
         finalDateTime = currentTime.format(formatDateTime);
 
-        // Write the information into the csv.
+        // Write the deposit information into the csv.
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("transactions.csv", true))) {
             writer.write(finalDateTime + "|" + depositDescription + "|" + depositVendor + "|" + depositAmount + "\n");
 
@@ -105,19 +105,39 @@ public class AccountingLedger {
     // Create the makePayment method.
     public static void makePayment() {
         // Ask user for the payment informaiton.
-        System.out.println("Please enter the deposit information:");
+        System.out.println("Please enter the payment information:");
 
-        // Ask user to enter the deposit information.
+        // Ask user to enter the payment information.
         System.out.print("Enter payment description: ");
         paymentDescription = scanner.nextLine();
 
-        // Ask user to enter deposit vendor.
+        // Ask user to enter payment vendor.
         System.out.print("Enter payment vendor: ");
         paymentVendor = scanner.nextLine();
 
-        // Ask user to enter deposit amount.
+        // Ask user to enter payment amount.
         System.out.println("Enter payment amount (as negative): ");
         paymentAmount = scanner.nextDouble();
+
+        // Get current date and time.
+        currentTime = LocalDateTime.now();
+
+        // Set the format for the date and time.
+        formatDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss");
+
+        // Format the date and time.
+        finalDateTime = currentTime.format(formatDateTime);
+
+        // Write the payment information into the csv.
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("transactions.csv", true))) {
+            writer.write(finalDateTime + "|" + paymentDescription + "|" + paymentVendor + "|" + paymentAmount + "\n");
+            
+            // Success messsage.
+            System.out.println("Payment information added to transactions.csv successfully.");
+        // If an error occured, print error.
+        } catch (IOException e) {
+            System.out.println("An error occurred while writing to the file: " + e.getMessage());
+        }
     }
 
     // Create the ledger method.
