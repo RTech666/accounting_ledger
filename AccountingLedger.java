@@ -67,23 +67,23 @@ public class AccountingLedger {
         ledgerInput = scanner.nextLine();
 
         // If user chose A.
-        if (userInput.equalsIgnoreCase("a")) {
+        if (ledgerInput.equalsIgnoreCase("a")) {
             // Call ledgerAll method.
             ledgerAll();
         // If user chose D.
-        } else if (userInput.equalsIgnoreCase("d")) {
+        } else if (ledgerInput.equalsIgnoreCase("d")) {
             // Call ledgerDeposits method.
             ledgerDeposits();
         // If user chose P.
-        } else if (userInput.equalsIgnoreCase("p")) {
+        } else if (ledgerInput.equalsIgnoreCase("p")) {
             // Call ledgerPayments method.
             ledgerPayments();
         // If user chose R.
-        } else if (userInput.equalsIgnoreCase("r")) {
+        } else if (ledgerInput.equalsIgnoreCase("r")) {
             // Call ledgerReports method.
             ledgerReports();
         // If user chose H.
-        } else if (userInput.equalsIgnoreCase("h")) {
+        } else if (ledgerInput.equalsIgnoreCase("h")) {
             // Return to home.
             return;
         // If user entered a wrong input.
