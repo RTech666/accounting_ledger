@@ -1,6 +1,8 @@
 package accounting_ledger;
 import java.util.Scanner;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -23,6 +25,8 @@ public class AccountingLedger {
     static LocalDateTime currentTime;
     static DateTimeFormatter formatDateTime;
     static String finalDateTime;
+    static String line;
+    static double amount;
 
     public static void main(String args[]) {
         // Call homeMenu method.
@@ -59,7 +63,7 @@ public class AccountingLedger {
             System.exit(0);
         // If user entered a wrong input.
         } else {
-            System.out.println("Invalid input. Please try again.");
+            System.out.print("Invalid input. Please try again: ");
             userInput = scanner.nextLine();
         }
     }
@@ -67,7 +71,7 @@ public class AccountingLedger {
     // Create the addDeposit method.
     public static void addDeposit() {
         // Ask user to enter their deposit information.
-        System.out.println("Please enter the deposit information:");
+        System.out.println("\nPlease enter the deposit information:");
 
         // Ask user to enter the deposit information.
         System.out.print("Enter deposit description: ");
@@ -78,8 +82,9 @@ public class AccountingLedger {
         depositVendor = scanner.nextLine();
 
         // Ask user to enter deposit amount.
-        System.out.println("Enter deposit amount: ");
+        System.out.print("Enter deposit amount: ");
         depositAmount = scanner.nextDouble();
+        scanner.nextLine();
 
         // Get current date and time.
         currentTime = LocalDateTime.now();
@@ -92,20 +97,23 @@ public class AccountingLedger {
 
         // Write the deposit information into the csv.
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("transactions.csv", true))) {
-            writer.write(finalDateTime + "|" + depositDescription + "|" + depositVendor + "|" + depositAmount + "\n");
+            writer.write("\n" + finalDateTime + "|" + depositDescription + "|" + depositVendor + "|" + depositAmount);
 
             // Success messsage.
-            System.out.println("Deposit information added to transactions.csv successfully.");
+            System.out.println("\nDeposit information added to transactions.csv successfully.\n");
         // If an error occured, print error.
         } catch (IOException e) {
-            System.out.println("An error occurred while writing to the file: " + e.getMessage());
+            System.out.println("\nAn error occurred while writing to the file: " + e.getMessage() + "\n");
         }
+
+        // Go back to home menu.
+        homeMenu();
     }
 
     // Create the makePayment method.
     public static void makePayment() {
         // Ask user for the payment informaiton.
-        System.out.println("Please enter the payment information:");
+        System.out.println("\nPlease enter the payment information:");
 
         // Ask user to enter the payment information.
         System.out.print("Enter payment description: ");
@@ -116,8 +124,9 @@ public class AccountingLedger {
         paymentVendor = scanner.nextLine();
 
         // Ask user to enter payment amount.
-        System.out.println("Enter payment amount (as negative): ");
+        System.out.print("Enter payment amount (as negative): ");
         paymentAmount = scanner.nextDouble();
+        scanner.nextLine();
 
         // Get current date and time.
         currentTime = LocalDateTime.now();
@@ -130,20 +139,23 @@ public class AccountingLedger {
 
         // Write the payment information into the csv.
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("transactions.csv", true))) {
-            writer.write(finalDateTime + "|" + paymentDescription + "|" + paymentVendor + "|" + paymentAmount + "\n");
+            writer.write("\n" + finalDateTime + "|" + paymentDescription + "|" + paymentVendor + "|" + paymentAmount);
             
             // Success messsage.
-            System.out.println("Payment information added to transactions.csv successfully.");
+            System.out.println("\nPayment information added to transactions.csv successfully.\n");
         // If an error occured, print error.
         } catch (IOException e) {
-            System.out.println("An error occurred while writing to the file: " + e.getMessage());
+            System.out.println("\nAn error occurred while writing to the file: " + e.getMessage() + "\n");
         }
+
+        // Go back to home menu.
+        homeMenu();
     }
 
     // Create the ledger method.
     public static void ledger() {
         // Print the ledger menu options.
-        System.out.println("A) All");
+        System.out.println("\nA) All");
         System.out.println("D) Deposits");
         System.out.println("P) Payments");
         System.out.println("R) Reports");
@@ -175,30 +187,121 @@ public class AccountingLedger {
             homeMenu();
         // If user entered a wrong input.
         } else {
-            System.out.println("Invalid input. Please try again.");
+            System.out.print("Invalid input. Please try again: ");
             ledgerInput = scanner.nextLine();
         }
     }
 
     // Create ledgerAll method.
     public static void ledgerAll() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("transactions.csv"))) {
+            // Skip the first line.
+            line = reader.readLine();
 
+            // If CSV is empty, print message.
+            if (line == null) {
+                System.out.println("No transactions found.");
+                return;
+            }
+
+            // Print title.
+            System.out.println("\nAll Transactions:");
+
+            // Read the lines in the CSV.
+            while ((line = reader.readLine()) != null) {
+                // Print all transactions.
+                System.out.println(line);
+            }
+        // If an error occured, print error.
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file: " + e.getMessage());
+        }
+
+        // Go back to ledger menu.
+        ledger();
     }
 
     // Create the ledgerDeposits method.
     public static void ledgerDeposits() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("transactions.csv"))) {
+            // Skip the first line.
+            line = reader.readLine();
 
+            // If CSV is empty, print message.
+            if (line == null) {
+                System.out.println("No transactions found.");
+                return;
+            }
+
+            // Print title.
+            System.out.println("\nAll Deposit Transactions:");
+
+            // Read the lines in the CSV.
+            while ((line = reader.readLine()) != null) {
+                // Split the information into parts.
+                String[] parts = line.split("\\|");
+
+                // Set the amount.
+                amount = Double.parseDouble(parts[4]);
+
+                // Print all the deposits.
+                if (amount > 0) {
+                    System.out.println(line);
+                }
+            }
+        // If an error occured, print error.
+        } catch (IOException | ArrayIndexOutOfBoundsException | NumberFormatException e) {
+            System.out.println("An error occurred while reading the file: " + e.getMessage());
+        }
+
+        // Go back to ledger menu.
+        ledger();
     }
 
     // Create the ledgerPayments method.
     public static void ledgerPayments() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("transactions.csv"))) {
+            // Skip the first line.
+            line = reader.readLine();
 
+            // If CSV is empty, print message.
+            if (line == null) {
+                System.out.println("No transactions found.");
+                return;
+            }
+
+            // Print title.
+            System.out.println("\nAll Payment Transactions:");
+
+            // Read the lines in the CSV.
+            while ((line = reader.readLine()) != null) {
+                // Split the information into parts.
+                String[] parts = line.split("\\|");
+
+                // Set the amount.
+                amount = Double.parseDouble(parts[4]);
+
+                // Print all the payments.
+                if (amount < 0) {
+                    System.out.println(line);
+
+                    // Go back to ledger menu when done.
+                    ledger();
+                }
+            }
+        // If an error occured, print error.
+        } catch (IOException | ArrayIndexOutOfBoundsException | NumberFormatException e) {
+            System.out.println("An error occurred while reading the file: " + e.getMessage());
+        }
+
+        // Go back to ledger menu.
+        ledger();
     }
 
     // Create the ledgerReports method.
     public static void ledgerReports() {
         // Create menu for reports.
-        System.out.println("1) Month to Date");
+        System.out.println("\n1) Month to Date");
         System.out.println("2) Previous Month");
         System.out.println("3) Year to Date");
         System.out.println("4) Previous Year");
@@ -235,7 +338,7 @@ public class AccountingLedger {
             ledgerReports();
         // If user entered a wrong input.
         } else {
-            System.out.println("Invalid input. Please try again.");
+            System.out.print("Invalid input. Please try again: ");
             reportInput = scanner.nextInt();
         }
     }
