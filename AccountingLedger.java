@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -13,20 +14,39 @@ public class AccountingLedger {
     static Scanner scanner = new Scanner(System.in);
 
     // Create the variables.
+    static int currentMonth;
+    static int currentYear;
+    static int reportInput;
+    static int lastMonth;
+    static int lastYear;
     static String userInput;
     static String ledgerInput;
     static String depositDescription;
     static String depositVendor;
-    static double depositAmount;
     static String paymentDescription;
     static String paymentVendor;
-    static double paymentAmount;
-    static int reportInput;
-    static LocalDateTime currentTime;
-    static DateTimeFormatter formatDateTime;
     static String finalDateTime;
     static String line;
+    static String input;
+    static String monthString;
+    static String searchVendor;
+    static String vendor;
+    static String transactionDescription;
+    static String transactionVendor;
+    static double depositAmount;
+    static double paymentAmount;
     static double amount;
+    static double transactionAmount;
+    static boolean found;
+    static boolean match;
+    static LocalDate lastMonthDate;
+    static LocalDate currentDate;
+    static LocalDate lastYearDate;
+    static LocalDate transactionDate;
+    static LocalDate startDate = null;
+    static LocalDate endDate = null;
+    static LocalDateTime currentTime;
+    static DateTimeFormatter formatDateTime;
 
     public static void main(String args[]) {
         // Call homeMenu method.
@@ -306,11 +326,13 @@ public class AccountingLedger {
         System.out.println("3) Year to Date");
         System.out.println("4) Previous Year");
         System.out.println("5) Search by Vendor");
+        System.out.println("6) Custom Search");
         System.out.println("0) Back");
 
         // Ask user to choose an option.
         System.out.print("Choose an option: ");
         reportInput = scanner.nextInt();
+        scanner.nextLine();
 
         // If user chose 1.
         if (reportInput == 1) {
@@ -332,8 +354,13 @@ public class AccountingLedger {
         } else if (reportInput == 5) {
             // Call searchByVendor method.
             searchByVendor();
+        // If user chose 6.
+        } else if (reportInput == 6) {
+            // Call customSearch method.
+            customSearch();
+        }
         // If user chose 0.
-        } else if (reportInput == 0) {
+        else if (reportInput == 0) {
             // Call ledgerReports method.
             ledgerReports();
         // If user entered a wrong input.
@@ -345,26 +372,317 @@ public class AccountingLedger {
 
     // Create monthToDate method.
     public static void monthToDate() {
+        // Get the current month and year.
+        currentDate = LocalDate.now();
+        currentMonth = currentDate.getMonthValue();
+        currentYear = currentDate.getYear();
 
+        try (BufferedReader reader = new BufferedReader(new FileReader("transactions.csv"))) {
+            // Skip the first line.
+            reader.readLine();
+
+            // Set and initialize the variables.
+            String line;
+            found = false;
+
+            // Print title.
+            System.out.println("\nMonth to Date Transactions:");
+
+            // Read the lines in the CSV.
+            while ((line = reader.readLine()) != null) {
+                // Split the information into parts.
+                String[] parts = line.split("\\|");
+                transactionDate = LocalDate.parse(parts[0].split("\\|")[0]);
+
+                // Check if the date is in the current month and year.
+                if (transactionDate.getMonthValue() == currentMonth && transactionDate.getYear() == currentYear) {
+                    System.out.println(line);
+                    found = true;
+                }
+            }
+
+            // If no transactions found, print message.
+            if (!found) {
+                System.out.println("No transactions found for the current month.");
+            }
+        // If an error occurred, print error.
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file: " + e.getMessage());
+        }
+
+        // Go back to ledger reports menu.
+        ledgerReports();
     }
 
     // Create previousMonth method.
     public static void previousMonth() {
-        
+        // Get the date for the last month.
+        currentDate = LocalDate.now();
+        lastMonthDate = currentDate.minusMonths(1);
+        lastMonth = lastMonthDate.getMonthValue();
+        lastYear = lastMonthDate.getYear();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("transactions.csv"))) {
+            // Skip the first line.
+            reader.readLine();
+
+            // Set and initialize the variables.
+            String line;
+            found = false;
+
+            // Print title.
+            System.out.println("\nPrevious Month Results:");
+
+            // Read the lines in the CSV.
+            while ((line = reader.readLine()) != null) {
+                // Split the information into parts.
+                String[] parts = line.split("\\|");
+                transactionDate = LocalDate.parse(parts[0].split("\\|")[0]);
+
+                // Check if the date is in the last month.
+                if (transactionDate.getMonthValue() == lastMonth && transactionDate.getYear() == lastYear) {
+                    System.out.println(line);
+                    found = true;
+                }
+            }   
+
+            // If no transactions found, print message.
+            if (!found) {
+                System.out.println("No transactions found for the last month.");
+            }
+        // If an error occurred, print error.
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file: " + e.getMessage());
+        }
+
+        // Go back to ledger reports menu.
+        ledgerReports();
     }
 
     // Create yearToDate method.
     public static void yearToDate() {
+        // Get the current year.
+        currentYear = LocalDate.now().getYear();
 
+        try (BufferedReader reader = new BufferedReader(new FileReader("transactions.csv"))) {
+            // Skip the first line.
+            reader.readLine();
+
+            // Set and initialize the variables.
+            String line;
+            found = false;
+
+            // Print title.
+            System.out.println("\nYear to Date Results:");
+
+            // Read the lines in the CSV.
+            while ((line = reader.readLine()) != null) {
+                // Split the information into parts.
+                String[] parts = line.split("\\|");
+                transactionDate = LocalDate.parse(parts[0].split("\\|")[0]);
+
+                // Check if the date is in the current year.
+                if (transactionDate.getYear() == currentYear) {
+                    System.out.println(line);
+                    found = true;
+                }
+            }
+
+            // If no transactions found, print message.
+            if (!found) {
+                System.out.println("No transactions found for the current year.");
+            }
+        // If an error occurred, print error.
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file: " + e.getMessage());
+        }
+
+        // Go back to ledger reports menu.
+        ledgerReports();
     }
 
     // Create previousYear method.
     public static void previousYear() {
+        // Get the date for the previous year.
+        currentDate = LocalDate.now();
+        lastYearDate = currentDate.minusYears(1);
+        lastYear = lastYearDate.getYear();
 
+        try (BufferedReader reader = new BufferedReader(new FileReader("transactions.csv"))) {
+            // Skip the first line.
+            reader.readLine();
+
+            // Set and initialize the variables.
+            String line;
+            found = false;
+
+            // Print title.
+            System.out.println("\nPrevious Year Results:");
+
+            // Read the lines in the CSV.
+            while ((line = reader.readLine()) != null) {
+                // Split the information into parts.
+                String[] parts = line.split("\\|");
+                LocalDate transactionDate = LocalDate.parse(parts[0].split("\\|")[0]);
+
+                // Check if the date is in the previous year.
+                if (transactionDate.getYear() == lastYear) {
+                    System.out.println(line);
+                    found = true;
+                }
+            }
+
+            // If no transactions found, print message.
+            if (!found) {
+                System.out.println("No transactions found for the previous year.");
+            }
+        // If an error occurred, print error.
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file: " + e.getMessage());
+        }
+
+        // Go back to ledger reports menu.
+        ledgerReports();
     }
 
     // Create searchByVendor method.
     public static void searchByVendor() {
+        // Ask the user to enter the vendor to search for.
+        System.out.print("Enter the vendor name to search for: ");
+        searchVendor = scanner.nextLine().trim().toLowerCase();
 
+        try (BufferedReader reader = new BufferedReader(new FileReader("transactions.csv"))) {
+            // Skip the first line.
+            reader.readLine();
+
+            // Set and initialize the variables.
+            String line;
+            found = false;
+
+            // Print title.
+            System.out.println("\nSearch by Vendor Results:");
+
+            // Read the lines in the CSV.
+            while ((line = reader.readLine()) != null) {
+                // Split the information into parts.
+                String[] parts = line.split("\\|");
+                vendor = parts[3].trim().toLowerCase();
+
+                // Check if the vendor matches the user's input.
+                if (vendor.equalsIgnoreCase(searchVendor)) {
+                    System.out.println(line);
+                    found = true;
+                }
+            }
+
+            // If no transactions found for the vendor, print message.
+            if (!found) {
+                System.out.println("No transactions found for the vendor: " + searchVendor);
+            }
+        // If an error occurred, print error.
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file: " + e.getMessage());
+        }
+
+        // Go back to ledger reports menu.
+        ledgerReports();
+    }
+
+    public static void customSearch() {
+        // Title.
+        System.out.println("Enter search values for ledger entry properties (press Enter to skip):");
+
+        // Ask the user for the start date.
+        System.out.print("Start date (YYYY-MM-DD): ");
+        String startDateInput = scanner.nextLine().trim();
+
+        // If their was an input, set the value.
+        if (!startDateInput.isEmpty()) {
+            startDate = LocalDate.parse(startDateInput);
+        }
+
+        // Ask the user for the end date.
+        System.out.print("End date (YYYY-MM-DD): ");
+        String endDateInput = scanner.nextLine().trim();
+
+        // If their was an input, set the value.
+        if (!endDateInput.isEmpty()) {
+            endDate = LocalDate.parse(endDateInput);
+        }
+
+        // Ask the user to input the description.
+        System.out.print("Description: ");
+        String description = scanner.nextLine().trim();
+
+        // Ask the user to input the vendor.
+        System.out.print("Vendor: ");
+        String vendor = scanner.nextLine().trim();
+
+        // Ask the user to input the amount.
+        System.out.print("Amount: ");
+        String amountInput = scanner.nextLine().trim();
+
+        // If their was an input, set the value.
+        Double amount = null;
+        if (!amountInput.isEmpty()) {
+            amount = Double.parseDouble(amountInput);
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("transactions.csv"))) {
+            // Skip the first line.
+            reader.readLine();
+
+            // Set and initialize the variables.
+            String line;
+            found = false;
+
+            // Print title.
+            System.out.println("\nCustom Search Results:");
+
+            // Read the lines in the CSV.
+            while ((line = reader.readLine()) != null) {
+                // Split the information into parts.
+                String[] parts = line.split("\\|");
+                transactionDate = LocalDate.parse(parts[0].split("\\|")[0]);
+                transactionDescription = parts[2];
+                transactionVendor = parts[3];
+                transactionAmount = Double.parseDouble(parts[4]);
+
+                // Check if the transaction matches the search criteria.
+                match = true;
+                if (startDate != null && transactionDate.isBefore(startDate)) {
+                match = false;
+                }
+                if (endDate != null && transactionDate.isAfter(endDate)) {
+                match = false;
+                }
+                if (!description.isEmpty() && !transactionDescription.contains(description)) {
+                match = false;
+                }
+                if (!vendor.isEmpty() && !transactionVendor.equalsIgnoreCase(vendor)) {
+                match = false;
+                }
+                if (amount != null && transactionAmount != amount) {
+                match = false;
+                }
+
+                // Print the transaction if it matches all the criterias.
+                if (match) {
+                    System.out.println(line);
+                    found = true;
+                }
+            }
+
+            // If no transactions found, print message.
+            if (!found) {
+                System.out.println("No transactions found matching the search criteria.");
+            }
+        // If an error occurred, print error.
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file: " + e.getMessage());
+        }
+
+        // Go back to ledger reports menu.
+        ledgerReports();
     }
 }
