@@ -677,19 +677,19 @@ public class AccountingLedger {
                 // Check if the transaction matches the search criteria.
                 match = true;
                 if (startDate != null && transactionDate.isBefore(startDate)) {
-                match = false;
+                    match = false;
                 }
                 if (endDate != null && transactionDate.isAfter(endDate)) {
-                match = false;
+                    match = false;
                 }
                 if (!description.isEmpty() && !transactionDescription.contains(description)) {
-                match = false;
+                    match = false;
                 }
                 if (!vendor.isEmpty() && !transactionVendor.equalsIgnoreCase(vendor)) {
-                match = false;
+                    match = false;
                 }
                 if (amount != null && transactionAmount != amount) {
-                match = false;
+                    match = false;
                 }
 
                 // Print the transaction if it matches all the criterias.
