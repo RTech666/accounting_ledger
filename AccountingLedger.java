@@ -1,4 +1,8 @@
 package accounting_ledger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -55,36 +59,42 @@ public class AccountingLedger {
 
     // Create the homeMenu method.
     public static void homeMenu() {
-        // Print the menu options.
-        System.out.println("D) Add Deposit");
-        System.out.println("P) Make Payment (Debit)");
-        System.out.println("L) Ledger");
-        System.out.println("X) Exit");
+        while (true) {
+            // Print the menu options.
+            System.out.println("D) Add Deposit");
+            System.out.println("P) Make Payment (Debit)");
+            System.out.println("L) Ledger");
+            System.out.println("X) Exit");
 
-        // Ask the user what they want to do.
-        System.out.print("Please select an option: ");
-        userInput = scanner.nextLine();
-
-        // If user chose D.
-        if (userInput.equalsIgnoreCase("d")) {
-            // Call addDeposit method.
-            addDeposit();
-        // If user chose P.
-        } else if (userInput.equalsIgnoreCase("p")) {
-            // Call makePayment method.
-            makePayment();
-        // If user chose L.
-        } else if (userInput.equalsIgnoreCase("l")) {
-            // Call ledger method.
-            ledger();
-        // If user chose X.
-        } else if (userInput.equalsIgnoreCase("x")) {
-            // Quit.
-            System.exit(0);
-        // If user entered a wrong input.
-        } else {
-            System.out.print("Invalid input. Please try again: ");
+            // Ask the user what they want to do.
+            System.out.print("Please select an option: ");
             userInput = scanner.nextLine();
+
+            // Convert user input to uppercase for comparison
+            userInput = userInput.toUpperCase();
+
+            // Check the user input
+            switch (userInput) {
+                case "D":
+                    // Call addDeposit method.
+                    addDeposit();
+                    break;
+                case "P":
+                    // Call makePayment method.
+                    makePayment();
+                    break;
+                case "L":
+                    // Call ledger method.
+                    ledger();
+                    break;
+                case "X":
+                    // Quit.
+                    System.exit(0);
+                default:
+                    // If user entered a wrong input.
+                    System.out.println("Invalid input. Please try again.");
+                    break;
+            }
         }
     }
 
@@ -224,15 +234,31 @@ public class AccountingLedger {
                 return;
             }
 
+            // Read the lines in the CSV into a list.
+            List<String> transactions = new ArrayList<>();
+            while ((line = reader.readLine()) != null) {
+                transactions.add(line);
+            }
+        
+            // Sort transactions by date and time.
+            Collections.sort(transactions, new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    String[] parts1 = o1.split("\\|");
+                    String[] parts2 = o2.split("\\|");
+                    LocalDateTime dateTime1 = LocalDateTime.parse(parts1[0] + "|" + parts1[1], DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss"));
+                    LocalDateTime dateTime2 = LocalDateTime.parse(parts2[0] + "|" + parts2[1], DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss"));
+                    return dateTime2.compareTo(dateTime1);
+                }
+            });
+
             // Print title.
             System.out.println("\nAll Transactions:");
 
-            // Read the lines in the CSV.
-            while ((line = reader.readLine()) != null) {
-                // Print all transactions.
-                System.out.println(line);
+            // Print all transactions.
+            for (String transaction : transactions) {
+                System.out.println(transaction);
             }
-        // If an error occured, print error.
         } catch (IOException e) {
             System.out.println("An error occurred while reading the file: " + e.getMessage());
         }
